@@ -5,8 +5,9 @@ package org.setu.placemark.models
  * Kotlin automatically generates toString(), equals(), hashCode(), and copy().
  */
 data class PlacemarkModel(
-    var id: Long = 0L,
-    val title: String = "",
-    val description: String = ""
-    // TODO add more here
+    var id:  Long = 0L,
+    var title: String = "",
+    var desc: String = "",
+    var x: Double = 0.0,
+    var y: Double = 0.0
 )
