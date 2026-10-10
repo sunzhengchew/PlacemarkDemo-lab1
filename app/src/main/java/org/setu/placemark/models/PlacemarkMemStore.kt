@@ -17,15 +17,16 @@ class PlacemarkMemStore {
     }
 
     fun update(placemark: PlacemarkModel): Boolean {
-        val foundIndex = placemarks.indexOfFirst { it.id == placemark.id }
-
-        if (foundIndex == -1) return false
-
-        placemarks[foundIndex] = placemarks[foundIndex].copy(
-            title = placemark.title,
-            description = placemark.description
-        )
-        return true
+        val foundPlacemark = findOne(placemark.id)
+        return if (foundPlacemark != null) {
+            foundPlacemark.title = placemark.title
+            foundPlacemark.desc = placemark.desc
+            foundPlacemark.x = placemark.x
+            foundPlacemark.y = placemark.y
+            true
+        } else {
+            false
+        }
     }
 
      fun delete(id: Long): Boolean {

@@ -44,7 +44,7 @@ fun addPlacemark() {
     val description = readlnOrNull()?.trim().orEmpty()
 
     if (title.isNotEmpty()) {
-        val placemark = PlacemarkModel(title = title, description = description)
+        val placemark = PlacemarkModel(title = title, desc = description)
         store.create(placemark)
         println("Placemark added successfully with ID: ${placemark.id}")
     } else {
@@ -58,7 +58,7 @@ fun listPlacemarks() {
     if (placemarks.isEmpty()) {
         println("No placemarks stored yet.")
     } else {
-        placemarks.forEach { println("ID: ${it.id} | Title: ${it.title} | Description: ${it.description}") }
+        placemarks.forEach { println("ID: ${it.id} | Title: ${it.title} | Description: ${it.desc}") }
     }
 }
 
@@ -77,7 +77,7 @@ fun updatePlacemark() {
         val description = readlnOrNull()?.trim().orEmpty()
 
         if (title.isNotEmpty()) {
-            val updated = store.update(PlacemarkModel(id = id, title = title, description = description))
+            val updated = store.update(PlacemarkModel(id = id, title = title, desc = description))
             if (updated) println("Placemark updated successfully.")
         } else {
             println("Title cannot be empty. Update cancelled.")
@@ -115,7 +115,7 @@ fun searchPlacemark() {
     if (id != null) {
         val placemark = store.findOne(id)
         if (placemark != null) {
-            println("Found: ID: ${placemark.id} | Title: ${placemark.title} | Description: ${placemark.description}")
+            println("Found: ID: ${placemark.id} | Title: ${placemark.title} | Description: ${placemark.desc}")
         } else {
             println("No placemark found with ID $id.")
         }
