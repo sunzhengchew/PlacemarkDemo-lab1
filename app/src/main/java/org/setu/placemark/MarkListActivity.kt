@@ -1,5 +1,6 @@
 package org.setu.placemark
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -21,17 +22,34 @@ class MarkListActivity : AppCompatActivity() {
         recyclerView =
             findViewById(R.id.marksRecyclerView)
 
+
         adapter = PlacedMarkAdapter(
+
             marks = AppData.placedMarks.findAll(),
 
-            onEdit = { mark ->
-                editMark(mark)
-            },
+            listener = object : OnMarkListener {
 
-            onDelete = { mark ->
-                deleteMark(mark)
+
+
+                override fun onMarkClick(mark: PlacemarkModel) {
+
+                    editMark(mark)
+
+                }
+
+
+
+                override fun onMarkLongClick(mark: PlacemarkModel): Boolean {
+                    confirmDelete(mark)
+                    return true
+
+                }
+
             }
+
         )
+
+
 
         recyclerView.layoutManager =
             LinearLayoutManager(this)
@@ -77,5 +95,15 @@ class MarkListActivity : AppCompatActivity() {
         adapter.updateMarks(
             AppData.placedMarks.findAll()
         )
+    }
+    private fun confirmDelete(mark: PlacemarkModel) {
+        AlertDialog.Builder(this)
+            .setTitle("Delete mark")
+            .setMessage("Delete this mark?")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteMark(mark)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 }
