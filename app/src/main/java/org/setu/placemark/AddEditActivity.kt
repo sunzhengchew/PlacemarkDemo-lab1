@@ -8,6 +8,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import org.setu.placemark.models.PlacemarkModel
+import android.net.Uri
+import android.widget.ImageView
+import androidx.activity.result.contract.ActivityResultContracts
+
 
 class AddEditActivity : AppCompatActivity() {
 
@@ -17,12 +21,40 @@ class AddEditActivity : AppCompatActivity() {
     private lateinit var yInput: EditText
 
     private var editingId: Long? = null
+    private lateinit var imagePreview: ImageView
+    private var selectedImageUri: Uri? = null
+
+    private val imagePicker =
+        registerForActivityResult(
+            ActivityResultContracts.OpenDocument()
+        ) { uri: Uri? ->
+            if (uri != null) {
+                try {
+                    contentResolver.takePersistableUriPermission(
+                        uri,
+                        android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                } catch (_: SecurityException) {
+                    // Provider does not support persistable access.
+                }
+
+                selectedImageUri = uri
+                imagePreview.setImageURI(uri)
+            }
+        }
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_add_edit)
+
+        imagePreview = findViewById(R.id.markImage)
+
+        findViewById<Button>(R.id.chooseImageButton)
+            .setOnClickListener {
+                imagePicker.launch(arrayOf("image/*"))
+            }
 
         titleInput =
             findViewById(R.id.titleInput)
@@ -63,6 +95,7 @@ class AddEditActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("UseKtx")
     private fun loadExistingMark(id: Long) {
 
         val mark =
@@ -84,73 +117,83 @@ class AddEditActivity : AppCompatActivity() {
         descriptionInput.setText(mark.desc)
         xInput.setText(mark.x.toString())
         yInput.setText(mark.y.toString())
+        selectedImageUri = mark.imageUri?.let { Uri.parse(it) }
+
+        if (selectedImageUri != null) {
+            imagePreview.setImageURI(selectedImageUri)
+        } else {
+            imagePreview.setImageResource(android.R.drawable.ic_menu_gallery)
+        }
     }
 
     private fun saveMark() {
-
-        val title =
-            titleInput.text.toString().trim()
-
-        val description =
-            descriptionInput.text.toString().trim()
+        val title = titleInput.text.toString().trim()
+        val description = descriptionInput.text.toString().trim()
 
         if (title.isEmpty()) {
             titleInput.error = "Title is required"
             return
         }
 
-        val x =
-            xInput.text.toString().toDoubleOrNull()
+        val x = xInput.text.toString().toDoubleOrNull()
 
         if (x == null) {
             xInput.error = "Enter a valid number"
             return
         }
 
-        val y =
-            yInput.text.toString().toDoubleOrNull()
+        val y = yInput.text.toString().toDoubleOrNull()
 
         if (y == null) {
             yInput.error = "Enter a valid number"
             return
         }
 
-        if (editingId == null) {
-
+        try {
             val mark = PlacemarkModel(
+                id = editingId ?: 0L,
                 title = title,
                 desc = description,
                 x = x,
-                y = y
+                y = y,
+                imageUri = selectedImageUri?.toString()
             )
 
-            AppData.placedMarks.create(mark)
+            // The store calls validate() before saving.
+            if (editingId == null) {
+                AppData.placedMarks.create(mark)
 
+                Toast.makeText(
+                    this,
+                    "Mark created",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                val updated = AppData.placedMarks.update(mark)
+
+                if (!updated) {
+                    Toast.makeText(
+                        this,
+                        "Mark not found",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return
+                }
+
+                Toast.makeText(
+                    this,
+                    "Mark updated",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            finish()
+        } catch (e: IllegalArgumentException) {
             Toast.makeText(
                 this,
-                "Mark created",
-                Toast.LENGTH_SHORT
-            ).show()
-
-        } else {
-
-            val mark = PlacemarkModel(
-                id = editingId!!,
-                title = title,
-                desc = description,
-                x = x,
-                y = y
-            )
-
-            AppData.placedMarks.update(mark)
-
-            Toast.makeText(
-                this,
-                "Mark updated",
-                Toast.LENGTH_SHORT
+                e.message ?: "Please check the entered values.",
+                Toast.LENGTH_LONG
             ).show()
         }
-
-        finish()
     }
 }
