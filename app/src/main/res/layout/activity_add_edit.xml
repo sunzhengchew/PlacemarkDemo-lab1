@@ -56,6 +56,13 @@
             android:inputType="numberDecimal|numberSigned"
             android:minHeight="48dp" />
 
+        <Button
+            android:id="@+id/buttonLoc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Choose Location" />
+
         <ImageView
             android:id="@+id/markImage"
             android:layout_width="match_parent"
