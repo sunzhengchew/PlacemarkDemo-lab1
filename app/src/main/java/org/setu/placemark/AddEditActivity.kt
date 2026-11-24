@@ -11,6 +11,8 @@ import org.setu.placemark.models.PlacemarkModel
 import android.net.Uri
 import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
+import android.content.Intent
+import kotlin.jvm.java
 
 
 class AddEditActivity : AppCompatActivity() {
@@ -68,6 +70,30 @@ class AddEditActivity : AppCompatActivity() {
         yInput =
             findViewById(R.id.yInput)
 
+        findViewById<Button>(R.id.buttonLoc).setOnClickListener {
+            val intent = Intent(this, MapPickerActivity::class.java)
+
+            val latitude = xInput.text.toString().toDoubleOrNull()
+            val longitude = yInput.text.toString().toDoubleOrNull()
+
+            if (
+                latitude != null && longitude != null &&
+                latitude.isFinite() && longitude.isFinite() &&
+                latitude in -90.0..90.0 &&
+                longitude in -180.0..180.0
+            ) {
+                intent.putExtra("latitude", latitude)
+                intent.putExtra("longitude", longitude)
+            }
+
+            intent.putExtra(
+                "markerTitle",
+                titleInput.text.toString().trim()
+            )
+
+            mapPicker.launch(intent)
+        }
+
         val saveButton =
             findViewById<Button>(R.id.saveButton)
 
@@ -94,6 +120,23 @@ class AddEditActivity : AppCompatActivity() {
             finish()
         }
     }
+
+    private val mapPicker =
+        registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data ?: return@registerForActivityResult
+
+                xInput.setText(
+                    data.getDoubleExtra("latitude", 0.0).toString()
+                )
+
+                yInput.setText(
+                    data.getDoubleExtra("longitude", 0.0).toString()
+                )
+            }
+        }
 
     @SuppressLint("UseKtx")
     private fun loadExistingMark(id: Long) {
