@@ -31,4 +31,13 @@
         android:textSize="14sp"
         tools:text="X: 10.5, Y: 20.3" />
 
+    <ImageView
+        android:id="@+id/markImage"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:layout_marginTop="12dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="Placemark photo"
+        android:scaleType="centerCrop" />b
+
 </LinearLayout>

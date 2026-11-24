@@ -56,6 +56,23 @@
             android:inputType="numberDecimal|numberSigned"
             android:minHeight="48dp" />
 
+        <ImageView
+            android:id="@+id/markImage"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_marginTop="16dp"
+            android:adjustViewBounds="true"
+            android:background="#EEEEEE"
+            android:contentDescription="Selected image"
+            android:scaleType="centerCrop" />
+
+        <Button
+            android:id="@+id/chooseImageButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Choose Image" />
+
         <Button
             android:id="@+id/saveButton"
             android:layout_width="match_parent"
